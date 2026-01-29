@@ -25,7 +25,7 @@ class Dashboard extends BaseDashboard
 
             // // ✅ tables
             // \App\Filament\Widgets\VacantRoomsTable::class,        // full (recommended)
-            // \App\Filament\Widgets\RecentTenantsTable::class,      // full (recommended)
+            \App\Filament\Widgets\RecentTenantsTable::class,      // full (recommended)
         ];
     }
 }

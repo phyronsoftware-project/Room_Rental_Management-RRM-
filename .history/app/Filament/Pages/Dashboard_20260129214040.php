@@ -20,12 +20,12 @@ class Dashboard extends BaseDashboard
             \App\Filament\Widgets\DashboardStats::class,          // ✅ cards (set full span inside widget)
 
             // ✅ charts
-            // \App\Filament\Widgets\RoomsPerMonthChart::class,      // half (or full)
-            // \App\Filament\Widgets\TenantsPerMonthChart::class,    // half
+            \App\Filament\Widgets\RoomsPerMonthChart::class,      // half (or full)
+            \App\Filament\Widgets\TenantsPerMonthChart::class,    // half
 
-            // // ✅ tables
-            // \App\Filament\Widgets\VacantRoomsTable::class,        // full (recommended)
-            // \App\Filament\Widgets\RecentTenantsTable::class,      // full (recommended)
+            // ✅ tables
+            \App\Filament\Widgets\VacantRoomsTable::class,        // full (recommended)
+            \App\Filament\Widgets\RecentTenantsTable::class,      // full (recommended)
         ];
     }
 }

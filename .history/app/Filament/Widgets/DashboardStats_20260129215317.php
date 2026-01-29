@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\PaymentResource;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Property;
@@ -12,7 +11,6 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\RoomResource;
-use App\Filament\Resources\TenantResource;
 use App\Filament\Resources\PropertyResource;
 
 class DashboardStats extends BaseWidget
@@ -80,8 +78,7 @@ class DashboardStats extends BaseWidget
                 ->chart([8, 9, 10, 11, 12, 13, 14, $totalTenants])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-amber-50 ring-amber-100',
-                ])
-                ->url(TenantResource::getUrl('index')),
+                ]),
 
             Stat::make('Payments This Month', $paymentsDisplay)
                 ->description('Collected in current month')
@@ -90,7 +87,7 @@ class DashboardStats extends BaseWidget
                 ->color('success')
                 ->chart([300, 420, 380, 510, 450, 560, (int) round($paymentsThisMonth)])
                 ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
-                ->url(PaymentResource::getUrl('index')),
+                ->url(Paymen::getUrl('index')),
 
             Stat::make('Total Reports', '14')
                 ->description('Maintenance & issues')

@@ -12,7 +12,6 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\RoomResource;
-use App\Filament\Resources\TenantResource;
 use App\Filament\Resources\PropertyResource;
 
 class DashboardStats extends BaseWidget

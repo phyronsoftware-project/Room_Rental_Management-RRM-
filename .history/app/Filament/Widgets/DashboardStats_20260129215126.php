@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\PaymentResource;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Property;
@@ -12,7 +11,6 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\RoomResource;
-use App\Filament\Resources\TenantResource;
 use App\Filament\Resources\PropertyResource;
 
 class DashboardStats extends BaseWidget
@@ -25,16 +23,7 @@ class DashboardStats extends BaseWidget
         $totalRooms      = Room::query()->count();
         $totalProperties = Property::query()->count();
         $totalTenants    = Tenant::query()->count();
-        // ✅ Payments This Month (sum by payment_date)
-        $paymentsThisMonth = (float) Payment::query()
-            ->whereBetween('payment_date', [
-                now()->startOfMonth()->toDateString(),
-                now()->endOfMonth()->toDateString(),
-            ])
-            ->sum('amount');
-
-        $paymentsDisplay = '$' . number_format($paymentsThisMonth, 2);
-
+        $totalPayments   = Payment::query()->count();
 
         // ✅ common UI classes for all cards
         $cardBase = 'rounded-2xl shadow-sm ring-1 hover:shadow-md transition';
@@ -80,17 +69,17 @@ class DashboardStats extends BaseWidget
                 ->chart([8, 9, 10, 11, 12, 13, 14, $totalTenants])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-amber-50 ring-amber-100',
-                ])
-                ->url(TenantResource::getUrl('index')),
+                ]),
 
-            Stat::make('Payments This Month', $paymentsDisplay)
+            Stat::make('Payments This Month', '$1,300.00')
                 ->description('Collected in current month')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
-                ->chart([300, 420, 380, 510, 450, 560, (int) round($paymentsThisMonth)])
-                ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
-                ->url(PaymentResource::getUrl('index')),
+                ->chart([300, 420, 380, 510, 450, 560, $totalPayments])
+                ->extraAttributes([
+                    'class' => $cardBase . ' bg-emerald-50 ring-emerald-100',
+                ]),
 
             Stat::make('Total Reports', '14')
                 ->description('Maintenance & issues')
