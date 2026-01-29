@@ -1,0 +1,6 @@
+/* Tabs align left */
+.fi-tabs,
+.fi-tabs>div,
+.fi-tabs .fi-tabs-items {
+    justify-content: flex-start !important;
+}
