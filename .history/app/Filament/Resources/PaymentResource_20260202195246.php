@@ -12,9 +12,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Illuminate\Validation\Rule;
 
 class PaymentResource extends Resource
 {
@@ -38,53 +35,16 @@ class PaymentResource extends Resource
                             ->toArray())
                         ->searchable()
                         ->preload()
-                        ->live() // ✅ important: re-render dependent fields
-                        ->afterStateUpdated(function (Set $set) {
-                            // ✅ reset room when property changes
-                            $set('room_id', null);
-                        })
                         ->required(),
-
 
                     Forms\Components\Select::make('room_id')
                         ->label('Room')
-                        ->options(function (Get $get) {
-                            $propertyId = $get('property_id');
-                            if (blank($propertyId)) {
-                                return [];
-                            }
-
-                            return Room::query()
-                                ->where('property_id', $propertyId)
-                                ->orderBy('room_number')
-                                ->pluck('room_number', 'room_id')
-                                ->toArray();
-                        })
+                        ->options(fn() => Room::query()
+                            ->orderBy('room_number')
+                            ->pluck('room_number', 'room_id')
+                            ->toArray())
                         ->searchable()
                         ->preload()
-                        ->live()
-                        ->disabled(function (Get $get) {
-                            $propertyId = $get('property_id');
-                            if (blank($propertyId)) return true;
-
-                            // ✅ if property has no rooms -> disable room select
-                            return Room::query()->where('property_id', $propertyId)->doesntExist();
-                        })
-                        // ->helperText(function (Get $get) {
-                        //     $propertyId = $get('property_id');
-                        //     if (blank($propertyId)) return 'Please select a property first.';
-
-                        //     if (Room::query()->where('property_id', $propertyId)->doesntExist()) {
-                        //         return 'This property has no rooms. Please create rooms first.';
-                        //     }
-
-                        //     return null;
-                        // })
-                        // ✅ Backend validation: room must belong to selected property
-                        ->rules([
-                            fn(Get $get) => Rule::exists('rooms', 'room_id')
-                                ->where(fn($q) => $q->where('property_id', $get('property_id'))),
-                        ])
                         ->required(),
 
                     Forms\Components\Select::make('tenant_id')

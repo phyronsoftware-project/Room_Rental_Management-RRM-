@@ -70,16 +70,16 @@ class PaymentResource extends Resource
                             // ✅ if property has no rooms -> disable room select
                             return Room::query()->where('property_id', $propertyId)->doesntExist();
                         })
-                        // ->helperText(function (Get $get) {
-                        //     $propertyId = $get('property_id');
-                        //     if (blank($propertyId)) return 'Please select a property first.';
+                        ->helperText(function (Get $get) {
+                            $propertyId = $get('property_id');
+                            if (blank($propertyId)) return 'Please select a property first.';
 
-                        //     if (Room::query()->where('property_id', $propertyId)->doesntExist()) {
-                        //         return 'This property has no rooms. Please create rooms first.';
-                        //     }
+                            if (Room::query()->where('property_id', $propertyId)->doesntExist()) {
+                                return 'This property has no rooms. Please create rooms first.';
+                            }
 
-                        //     return null;
-                        // })
+                            return null;
+                        })
                         // ✅ Backend validation: room must belong to selected property
                         ->rules([
                             fn(Get $get) => Rule::exists('rooms', 'room_id')

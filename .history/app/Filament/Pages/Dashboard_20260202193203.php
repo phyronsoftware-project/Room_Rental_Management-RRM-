@@ -4,7 +4,7 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
 use App\Filament\Widgets\TenantRoomMonthlyChart;
-use App\Filament\Widgets\PaymentsYearCompareChart;
+
 class Dashboard extends BaseDashboard
 {
     protected static ?string $title = 'Dashboard';
@@ -26,7 +26,6 @@ class Dashboard extends BaseDashboard
         return [
             \App\Filament\Widgets\DashboardStats::class,          // ✅ cards (set full span inside widget)
             TenantRoomMonthlyChart::class,
-            PaymentsYearCompareChart::class,
             // ✅ charts
             // \App\Filament\Widgets\RoomsPerMonthChart::class,      // half (or full)
             // \App\Filament\Widgets\TenantsPerMonthChart::class,    // half

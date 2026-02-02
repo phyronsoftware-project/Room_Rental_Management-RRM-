@@ -109,7 +109,7 @@ class DashboardStats extends BaseWidget
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
                 ->chart($paymentsChart) // ✅ real chart Jan-Dec
-                ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
+                ->extraAttributes(['class' => $cardBase . ' bg-emerald-100 ring-emerald-100'])
                 ->url(PaymentResource::getUrl('index')),
 
             Stat::make('Total Reports', '14')

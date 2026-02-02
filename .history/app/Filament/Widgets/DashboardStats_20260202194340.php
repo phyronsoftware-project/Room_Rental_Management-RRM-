@@ -58,7 +58,6 @@ class DashboardStats extends BaseWidget
             ->all();
 
         $cardBase = 'dark:bg-gray-800 dark:text-gray-100';
-
         return [
             Stat::make('Total Properties', (string) $totalProperties)
                 ->description('Buildings / properties')
@@ -103,12 +102,12 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(TenantResource::getUrl('index')),
 
-            Stat::make("Payments ({$year})", $paymentsYearDisplay)
-                ->description("This month: {$paymentsMonthDisplay}")
-                ->descriptionIcon('heroicon-m-calendar-days')
+            Stat::make('Payments This Month', $paymentsDisplay)
+                ->description('Collected in current month')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
-                ->chart($paymentsChart) // ✅ real chart Jan-Dec
+                ->chart([300, 420, 380, 510, 450, 560, (int) round($paymentsThisMonth)])
                 ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
                 ->url(PaymentResource::getUrl('index')),
 

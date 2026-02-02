@@ -26,38 +26,18 @@ class DashboardStats extends BaseWidget
         $totalProperties = Property::query()->count();
         $totalTenants    = Tenant::query()->count();
         // ✅ Payments This Month (sum by payment_date)
-        $year = now()->year;
-        // ✅ Total payments this year
-        $paymentsThisYear = (float) Payment::query()
-            ->whereBetween('payment_date', [
-                now()->startOfYear()->toDateString(),
-                now()->endOfYear()->toDateString(),
-            ])
-            ->sum('amount');
-
-        // ✅ Total payments this month
         $paymentsThisMonth = (float) Payment::query()
             ->whereBetween('payment_date', [
-                now()->startOfMonth()->toDateString(),
-                now()->endOfMonth()->toDateString(),
+                now()->startOfMonth()->startOfDay(),
+                now()->endOfMonth()->endOfDay(),
             ])
             ->sum('amount');
 
-        $paymentsYearDisplay  = '$' . number_format($paymentsThisYear, 2);
-        $paymentsMonthDisplay = '$' . number_format($paymentsThisMonth, 2);
+        $paymentsDisplay = '$' . number_format($paymentsThisMonth, 2);
 
-        // ✅ Chart = sums per month (Jan..Dec) for current year (1 query + map)
-        $monthlyMap = Payment::query()
-            ->whereYear('payment_date', $year)
-            ->selectRaw('MONTH(payment_date) as m, SUM(amount) as total')
-            ->groupBy('m')
-            ->pluck('total', 'm');
 
-        $paymentsChart = collect(range(1, 12))
-            ->map(fn($m) => (int) round((float) ($monthlyMap[$m] ?? 0)))
-            ->all();
-
-        $cardBase = 'dark:bg-gray-800 dark:text-gray-100';
+        // ✅ common UI classes for all cards
+        $cardBase = 'rounded-2xl shadow-sm ring-1 hover:shadow-md transition';
 
         return [
             Stat::make('Total Properties', (string) $totalProperties)
@@ -103,12 +83,12 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(TenantResource::getUrl('index')),
 
-            Stat::make("Payments ({$year})", $paymentsYearDisplay)
-                ->description("This month: {$paymentsMonthDisplay}")
-                ->descriptionIcon('heroicon-m-calendar-days')
+            Stat::make('Payments This Month', $paymentsDisplay)
+                ->description('Collected in current month')
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
-                ->chart($paymentsChart) // ✅ real chart Jan-Dec
+                ->chart([300, 420, 380, 510, 450, 560, (int) round($paymentsThisMonth)])
                 ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
                 ->url(PaymentResource::getUrl('index')),
 

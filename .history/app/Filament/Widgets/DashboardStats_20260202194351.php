@@ -104,13 +104,13 @@ class DashboardStats extends BaseWidget
                 ->url(TenantResource::getUrl('index')),
 
             Stat::make("Payments ({$year})", $paymentsYearDisplay)
-                ->description("This month: {$paymentsMonthDisplay}")
-                ->descriptionIcon('heroicon-m-calendar-days')
-                ->icon('heroicon-o-banknotes')
-                ->color('success')
-                ->chart($paymentsChart) // ✅ real chart Jan-Dec
-                ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
-                ->url(PaymentResource::getUrl('index')),
+    ->description("This month: {$paymentsMonthDisplay}")
+    ->descriptionIcon('heroicon-m-calendar-days')
+    ->icon('heroicon-o-banknotes')
+    ->color('success')
+    ->chart($paymentsChart) // ✅ real chart Jan-Dec
+    ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
+    ->url(PaymentResource::getUrl('index'));
 
             Stat::make('Total Reports', '14')
                 ->description('Maintenance & issues')
