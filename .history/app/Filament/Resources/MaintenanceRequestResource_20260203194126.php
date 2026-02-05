@@ -38,7 +38,7 @@ class MaintenanceRequestResource extends Resource
                             ->pluck('name', 'property_id')
                             ->toArray())
                         ->searchable()
-                        ->extraAttributes(['class' => 'hover-info-border'])
+                    ->extraAttributes(['class' => 'hover-info-border'])
                         ->preload()
                         ->required(),
 
@@ -156,26 +156,26 @@ class MaintenanceRequestResource extends Resource
                     ->successNotificationTitle('Deleted successfully ✅'),
             ])
             ->filters([
-                Filter::make('q')
-                    ->form([
-                        TextInput::make('q')
-                            ->label('Search')
-                            ->placeholder('Search issue / assigned / ID / property / room...')
-                            ->extraInputAttributes(['class' => 'w-full']),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        $value = $data['q'] ?? null;
+            Filter::make('q')
+                ->form([
+                    TextInput::make('q')
+                        ->label('Search')
+                        ->placeholder('Search issue / assigned / ID / property / room...')
+                        ->extraInputAttributes(['class' => 'w-full']),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    $value = $data['q'] ?? null;
 
-                        return $query->when($value, function (Builder $q) use ($value) {
-                            $q->where(function (Builder $qq) use ($value) {
-                                $qq->where('issue_reported', 'like', "%{$value}%")
-                                    ->orWhere('assigned_to', 'like', "%{$value}%")
-                                    ->orWhere('request_id', 'like', "%{$value}%");
-                            })
-                                ->orWhereHas('property', fn(Builder $p) => $p->where('name', 'like', "%{$value}%"))
-                                ->orWhereHas('room', fn(Builder $r) => $r->where('room_number', 'like', "%{$value}%"));
-                        });
-                    }),
+                    return $query->when($value, function (Builder $q) use ($value) {
+                        $q->where(function (Builder $qq) use ($value) {
+                            $qq->where('issue_reported', 'like', "%{$value}%")
+                                ->orWhere('assigned_to', 'like', "%{$value}%")
+                                ->orWhere('request_id', 'like', "%{$value}%");
+                        })
+                            ->orWhereHas('property', fn(Builder $p) => $p->where('name', 'like', "%{$value}%"))
+                            ->orWhereHas('room', fn(Builder $r) => $r->where('room_number', 'like', "%{$value}%"));
+                    });
+                }),
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([

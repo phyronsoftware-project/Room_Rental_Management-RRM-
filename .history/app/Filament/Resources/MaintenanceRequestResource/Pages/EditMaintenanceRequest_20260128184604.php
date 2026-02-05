@@ -13,8 +13,7 @@ class EditMaintenanceRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()
-                ->color('primary'),
+            Actions\DeleteAction::make(),
         ];
     }
 }

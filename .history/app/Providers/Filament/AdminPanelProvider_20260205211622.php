@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
 
             // ->viteTheme('resources/css/filament/admin/theme.css')
-            // ->theme(asset('css/filament/admin/theme.css'))
+            ->theme(asset('css/filament/admin/theme.css'))
             ->sidebarWidth('18rem')
             ->colors([
                 'primary' => Color::Amber,

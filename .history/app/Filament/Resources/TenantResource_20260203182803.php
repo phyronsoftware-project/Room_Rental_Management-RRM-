@@ -129,7 +129,7 @@ class TenantResource extends Resource
                 Tables\Actions\Action::make('edit')
                     ->label('Edit')
                     ->icon('heroicon-o-pencil-square')
-                    ->color('primary')
+                ->color('primary')
                     ->modalHeading('Edit Tenant')
                     ->modalWidth('3xl')
                     ->fillForm(fn(Tenant $record) => [
@@ -157,26 +157,26 @@ class TenantResource extends Resource
                     ->successNotificationTitle('Deleted successfully ✅'),
             ])
             ->filters([
-                // ✅ Room filter
-                Filter::make('q')
-                    ->form([
-                        TextInput::make('q')
-                            ->label('Search')
-                            ->placeholder('Search name / phone / room...')
-                            ->extraInputAttributes(['class' => 'w-full']),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        $value = $data['q'] ?? null;
+            // ✅ Room filter
+            Filter::make('q')
+                ->form([
+                    TextInput::make('q')
+                        ->label('Search')
+                        ->placeholder('Search name / phone / room...')
+                        ->extraInputAttributes(['class' => 'w-full']),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    $value = $data['q'] ?? null;
 
-                        return $query->when($value, function (Builder $q) use ($value) {
-                            $q->where(function (Builder $qq) use ($value) {
-                                $qq->where('tenant_id', 'like', "%{$value}%")
-                                    ->orWhere('full_name', 'like', "%{$value}%")
-                                    ->orWhere('phone_number', 'like', "%{$value}%");
-                            })
-                                ->orWhereHas('room', fn(Builder $r) => $r->where('room_number', 'like', "%{$value}%"));
-                        });
-                    }),
+                    return $query->when($value, function (Builder $q) use ($value) {
+                        $q->where(function (Builder $qq) use ($value) {
+                            $qq->where('tenant_id', 'like', "%{$value}%")
+                                ->orWhere('full_name', 'like', "%{$value}%")
+                                ->orWhere('phone_number', 'like', "%{$value}%");
+                        })
+                            ->orWhereHas('room', fn(Builder $r) => $r->where('room_number', 'like', "%{$value}%"));
+                    });
+                }),
                 SelectFilter::make('room_id')
                     ->label('Room')
                     ->options(fn() => Room::query()

@@ -15,7 +15,7 @@ class ListProperties extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('Create Property')
-                ->color('primary')
+                ->
                 ->modalHeading('Create Property')
                 ->modalWidth('3xl'),
         ];

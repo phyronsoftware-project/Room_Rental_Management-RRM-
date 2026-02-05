@@ -31,8 +31,7 @@ class AdminPanelProvider extends PanelProvider
             // ->brandLogo(asset('img/me.jpeg'))
             ->login()
 
-            // ->viteTheme('resources/css/filament/admin/theme.css')
-            // ->theme(asset('css/filament/admin/theme.css'))
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarWidth('18rem')
             ->colors([
                 'primary' => Color::Amber,

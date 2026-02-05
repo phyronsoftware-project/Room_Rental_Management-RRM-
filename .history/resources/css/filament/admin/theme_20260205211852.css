@@ -1,18 +1,17 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '/vendor/filament/filament/resources/css/theme.css';
 @config './tailwind.config.js';
 
-/* ✅ your custom css below */
+/* ✅ hover/focus border = info */
 .fi-input-wrp {
     transition: box-shadow .15s ease, border-color .15s ease;
 }
 
 .fi-input-wrp:hover {
     box-shadow: 0 0 0 1px rgb(14 165 233) !important;
-    /* info */
 }
 
-/* .fi-input-wrp:focus-within {
+.fi-input-wrp:focus-within {
     box-shadow:
         0 0 0 1px rgb(2 132 199) !important,
-        0 0 0 4px rgb(14 165 233 / 0.25) !important;
-} */
+0 0 0 4px rgb(14 165 233 / 0.25) !important;
+}

@@ -1,0 +1,127 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+/* Tabs align left */
+.fi-tabs,
+.fi-tabs>div,
+.fi-tabs .fi-tabs-items {
+    justify-content: flex-start !important;
+}
+
+
+
+/* =========================
+   Sidebar Background (Light/Dark)
+   ========================= */
+
+.fi-sidebar {
+    background-color: #f8fafc;
+    /* light bg */
+    border-right: 1px solid #e2e8f0;
+    /* light border */
+}
+
+.dark .fi-sidebar {
+    background-color: #0b1220;
+    /* dark bg */
+    border-right-color: #334155;
+    /* dark border */
+}
+
+/* =========================
+   Sidebar item hover/active
+   ========================= */
+
+.fi-sidebar-item>a,
+.fi-sidebar-group>button {
+    border-radius: 14px;
+}
+
+.fi-sidebar-item>a:hover,
+.fi-sidebar-group>button:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+.dark .fi-sidebar-item>a:hover,
+.dark .fi-sidebar-group>button:hover {
+    background-color: rgba(59, 130, 246, 0.18);
+}
+
+/* active item */
+.fi-sidebar-item.fi-active>a {
+    background-color: rgba(59, 130, 246, 0.12);
+}
+
+.dark .fi-sidebar-item.fi-active>a {
+    background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* =========================
+   Smooth dark-mode transition
+   ========================= */
+
+/* make color changes smooth (dark toggle) */
+.fi-sidebar,
+.fi-sidebar *,
+.fi-topbar,
+.fi-topbar *,
+.fi-main,
+.fi-main * {
+    transition-property: background-color, color, border-color, fill, stroke;
+    transition-duration: 220ms;
+    transition-timing-function: ease;
+}
+
+/* Global button */
+.fi-btn {
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* Create button normally is PRIMARY (this one will change your orange button) */
+.fi-btn.fi-btn-color-primary {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-primary:hover {
+    background: #0284c7 !important;
+}
+
+/* Optional: other colors */
+.fi-btn.fi-btn-color-success {
+    background: #22c55e !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-success:hover {
+    background: #16a34a !important;
+}
+
+.fi-btn.fi-btn-color-danger {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-danger:hover {
+    background: #dc2626 !important;
+}
+a.fi-btn.fi-btn-color-primary,
+button.fi-btn.fi-btn-color-primary {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+}
+
+/* Smooth transition */
+.fi-input-wrp {
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+/* Hover => border = info (fallback to primary if info not exist) */
+.fi-input-wrp:hover {
+    border-color: rgb(var(--info-500, var(--primary-500)));
+}
+
+/* Focus => border + ring = info */
+.fi-input-wrp:focus-within {
+    border-color: rgb(var(--info-600, var(--primary-600)));
+    --tw-ring-color: rgb(var(--info-500, var(--primary-500)) / 0.35);
+}

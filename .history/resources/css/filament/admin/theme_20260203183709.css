@@ -1,0 +1,106 @@
+/* Tabs align left */
+.fi-tabs,
+.fi-tabs>div,
+.fi-tabs .fi-tabs-items {
+    justify-content: flex-start !important;
+}
+
+
+
+/* =========================
+   Sidebar Background (Light/Dark)
+   ========================= */
+
+.fi-sidebar {
+    background-color: #f8fafc;
+    /* light bg */
+    border-right: 1px solid #e2e8f0;
+    /* light border */
+}
+
+.dark .fi-sidebar {
+    background-color: #0b1220;
+    /* dark bg */
+    border-right-color: #334155;
+    /* dark border */
+}
+
+/* =========================
+   Sidebar item hover/active
+   ========================= */
+
+.fi-sidebar-item>a,
+.fi-sidebar-group>button {
+    border-radius: 14px;
+}
+
+.fi-sidebar-item>a:hover,
+.fi-sidebar-group>button:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+.dark .fi-sidebar-item>a:hover,
+.dark .fi-sidebar-group>button:hover {
+    background-color: rgba(59, 130, 246, 0.18);
+}
+
+/* active item */
+.fi-sidebar-item.fi-active>a {
+    background-color: rgba(59, 130, 246, 0.12);
+}
+
+.dark .fi-sidebar-item.fi-active>a {
+    background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* =========================
+   Smooth dark-mode transition
+   ========================= */
+
+/* make color changes smooth (dark toggle) */
+.fi-sidebar,
+.fi-sidebar *,
+.fi-topbar,
+.fi-topbar *,
+.fi-main,
+.fi-main * {
+    transition-property: background-color, color, border-color, fill, stroke;
+    transition-duration: 220ms;
+    transition-timing-function: ease;
+}
+
+/* Global button style */
+.fi-btn {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* Primary button background */
+.fi-btn.fi-color-primary {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-color-primary:hover {
+    background: #0284c7 !important;
+}
+
+/* Success button */
+.fi-btn.fi-color-success {
+    background: #22c55e !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-color-success:hover {
+    background: #16a34a !important;
+}
+
+/* Danger button */
+.fi-btn.fi-color-danger {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-color-danger:hover {
+    background: #dc2626 !important;
+}

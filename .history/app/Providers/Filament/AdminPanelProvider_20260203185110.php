@@ -30,9 +30,12 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('RRM - System')
             // ->brandLogo(asset('img/me.jpeg'))
             ->login()
-
+            ->colors([
+                'primary' => Color::Sky,     // ✅ ប្តូរពណ៌ primary ទាំង system
+                // 'success' => Color::Green,
+                // 'danger'  => Color::Red,
+            ])
             // ->viteTheme('resources/css/filament/admin/theme.css')
-            // ->theme(asset('css/filament/admin/theme.css'))
             ->sidebarWidth('18rem')
             ->colors([
                 'primary' => Color::Amber,
