@@ -1,0 +1,24 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config "./tailwind.config.js";
+
+/* custom css optional */
+/* ✅ Light mode overrides */
+html:not(.dark) .fi-body,
+html:not(.dark) body {
+    background: #f6f7fb !important;
+}
+
+html:not(.dark) .fi-sidebar,
+html:not(.dark) .fi-topbar,
+html:not(.dark) .fi-main {
+    background: #ffffff !important;
+    color: #111827 !important;
+}
+
+html:not(.dark) .fi-section,
+html:not(.dark) .fi-card,
+html:not(.dark) .fi-wi {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+}

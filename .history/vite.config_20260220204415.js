@@ -1,0 +1,44 @@
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+  plugins: [
+    laravel({
+      input: [
+  'resources/css/app.css',
+  'resources/js/app.js',
+  'resources/css/filament/admin/theme.css',
+],<div class="card" aria-hidden="true">
+    <img
+        class="card-img-top"
+        src="holder.js/100x180/"
+        alt="Some text"
+    />
+    <div class="card-body">
+        <h5
+            class="card-title placeholder"
+        >
+            <span class="placeholder col-6">Some text</span>
+        </h5>
+        <p
+            class="card-text placeholder"
+        >
+            <span class="placeholder col-7">Some text</span>
+            <span class="placeholder col-4">Some text</span>
+            <span class="placeholder col-4">Some text</span>
+            <span class="placeholder col-6">Some text</span>
+            <span class="placeholder col-8">Some text</span>
+        </p>
+        <a
+            href="#"
+            tabindex="-1"
+            class="btn btn-primary disabled placeholder col-6"
+            >Some text</a
+        >
+    </div>
+</div>
+
+      refresh: true,
+    }),
+  ],
+});

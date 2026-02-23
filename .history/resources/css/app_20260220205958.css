@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* (Optional) set your font like Tailwind v4 @theme did */
+:root {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+body {
+    font-family: var(--font-sans);
+}
+
+/* Create button normally is PRIMARY (this one will change your orange button) */
+.fi-btn.fi-btn-color-primary {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-primary:hover {
+    background: #0284c7 !important;
+}
+
+/* Optional: other colors */
+.fi-btn.fi-btn-color-success {
+    background: #22c55e !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-success:hover {
+    background: #16a34a !important;
+}
+
+.fi-btn.fi-btn-color-danger {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+.fi-btn.fi-btn-color-danger:hover {
+    background: #dc2626 !important;
+}
+
+a.fi-btn.fi-btn-color-primary,
+button.fi-btn.fi-btn-color-primary {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+}

@@ -1,0 +1,6 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config "./tailwind.config.js";
