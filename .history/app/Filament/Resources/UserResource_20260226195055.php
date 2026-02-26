@@ -12,7 +12,6 @@ use Filament\Tables\Table;
 use App\Models\Property;
 use Filament\Tables\Actions\CreateAction;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Hash;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Enums\FiltersLayout;
@@ -114,20 +113,11 @@ class UserResource extends Resource
                         ->maxLength(255)
                         ->unique(ignoreRecord: true),
 
-                // Forms\Components\TextInput::make('password')
-                //     ->password()
-                //     ->maxLength(255)
-                //     ->required()
-                //     ->dehydrateStateUsing(fn($state) => filled($state) ? $state : null),
-
-                Forms\Components\TextInput::make('password')
-                    ->label('Password')
-                    ->password()
-                    ->revealable()
-                    ->helperText('Edit: Leave blank to keep current password.')
-                    ->required(fn(string $context): bool => $context === 'create')
-                    ->dehydrated(fn($state): bool => filled($state)) // only save if filled
-                    ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null),
+                    // Forms\Components\TextInput::make('password')
+                    //     ->password()
+                    //     ->maxLength(255)
+                    //     ->required()
+                    //     ->dehydrateStateUsing(fn($state) => filled($state) ? $state : null),
 
                     Forms\Components\Select::make('role')
                         ->options([
