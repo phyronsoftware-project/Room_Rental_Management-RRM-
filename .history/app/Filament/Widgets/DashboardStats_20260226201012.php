@@ -96,8 +96,7 @@ class DashboardStats extends BaseWidget
                 ->chart([12, 14, 13, 15, 18, 16, $activeHouses])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
-                ])
-                ->url(RoomResource::getUrl('index')),
+                ]),
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')

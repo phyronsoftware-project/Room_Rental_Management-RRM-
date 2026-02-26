@@ -97,7 +97,7 @@ class DashboardStats extends BaseWidget
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
                 ])
-                ->url(RoomResource::getUrl('index')),
+                ,
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')

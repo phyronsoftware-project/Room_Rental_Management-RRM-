@@ -34,11 +34,6 @@ class DashboardStats extends BaseWidget
                 now()->endOfYear()->toDateString(),
             ])
             ->sum('amount');
-        // ✅ Active Houses (REAL): count properties that have at least 1 occupied/rented room
-        $activeHouses = (int) Room::query()
-            ->whereIn('status', ['occupied', 'rented'])
-            ->distinct('property_id')
-            ->count('property_id');
 
         // ✅ Total payments this month
         $paymentsThisMonth = (float) Payment::query()
@@ -87,17 +82,15 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(RoomResource::getUrl('index')),
 
-            // ✅ REAL value instead of hard-coded "20"
-            Stat::make('Total Houses', (string) $activeHouses)
+            Stat::make('Total Houses', '20')
                 ->description('Active houses in system')
                 ->descriptionIcon('heroicon-m-home')
                 ->icon('heroicon-o-home')
                 ->color('primary')
-                ->chart([12, 14, 13, 15, 18, 16, $activeHouses])
+                ->chart([12, 14, 13, 15, 18, 16, 20])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
-                ])
-                ->url(RoomResource::getUrl('index')),
+                ]),
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')
@@ -118,6 +111,26 @@ class DashboardStats extends BaseWidget
                 ->chart($paymentsChart) // ✅ real chart Jan-Dec
                 ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
                 ->url(PaymentResource::getUrl('index')),
+
+            // Stat::make('Total Reports', '14')
+            //     ->description('Maintenance & issues')
+            //     ->descriptionIcon('heroicon-m-clipboard-document-list')
+            //     ->icon('heroicon-o-clipboard-document-list')
+            //     ->color('danger')
+            //     ->chart([2, 3, 4, 6, 8, 10, 14])
+            //     ->extraAttributes([
+            //         'class' => $cardBase . ' bg-rose-50 ring-rose-100',
+            //     ]),
+
+            // Stat::make('Total House Types', '14')
+            //     ->description('Categories available')
+            //     ->descriptionIcon('heroicon-m-building-office-2')
+            //     ->icon('heroicon-o-building-office-2')
+            //     ->color('info')
+            //     ->chart([4, 5, 6, 7, 9, 11, 14])
+            //     ->extraAttributes([
+            //         'class' => $cardBase . ' bg-cyan-50 ring-cyan-100',
+            //     ]),
 
             Stat::make('Total Users', (string) $totalUsers)
                 ->description('Admins & staff')

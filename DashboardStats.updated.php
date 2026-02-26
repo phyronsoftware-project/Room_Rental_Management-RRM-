@@ -25,8 +25,16 @@ class DashboardStats extends BaseWidget
         $totalRooms      = Room::query()->count();
         $totalProperties = Property::query()->count();
         $totalTenants    = Tenant::query()->count();
-        // ✅ Payments This Month (sum by payment_date)
+
+        // ✅ Active Houses (REAL): count properties that have at least 1 occupied/rented room
+        $activeHouses = (int) Room::query()
+            ->whereIn('status', ['occupied', 'rented'])
+            ->distinct('property_id')
+            ->count('property_id');
+
+        // ✅ Payments This Month/Year (sum by payment_date)
         $year = now()->year;
+
         // ✅ Total payments this year
         $paymentsThisYear = (float) Payment::query()
             ->whereBetween('payment_date', [
@@ -34,11 +42,6 @@ class DashboardStats extends BaseWidget
                 now()->endOfYear()->toDateString(),
             ])
             ->sum('amount');
-        // ✅ Active Houses (REAL): count properties that have at least 1 occupied/rented room
-        $activeHouses = (int) Room::query()
-            ->whereIn('status', ['occupied', 'rented'])
-            ->distinct('property_id')
-            ->count('property_id');
 
         // ✅ Total payments this month
         $paymentsThisMonth = (float) Payment::query()
@@ -51,7 +54,7 @@ class DashboardStats extends BaseWidget
         $paymentsYearDisplay  = '$' . number_format($paymentsThisYear, 2);
         $paymentsMonthDisplay = '$' . number_format($paymentsThisMonth, 2);
 
-        // ✅ Chart = sums per month (Jan..Dec) for current year (1 query + map)
+        // ✅ Chart = sums per month (Jan..Dec) for current year
         $monthlyMap = Payment::query()
             ->whereYear('payment_date', $year)
             ->selectRaw('MONTH(payment_date) as m, SUM(amount) as total')
@@ -96,8 +99,7 @@ class DashboardStats extends BaseWidget
                 ->chart([12, 14, 13, 15, 18, 16, $activeHouses])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
-                ])
-                ->url(RoomResource::getUrl('index')),
+                ]),
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')
@@ -115,7 +117,7 @@ class DashboardStats extends BaseWidget
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
-                ->chart($paymentsChart) // ✅ real chart Jan-Dec
+                ->chart($paymentsChart)
                 ->extraAttributes(['class' => $cardBase . ' bg-emerald-50 ring-emerald-100'])
                 ->url(PaymentResource::getUrl('index')),
 
