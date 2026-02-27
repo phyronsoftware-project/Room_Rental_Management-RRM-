@@ -9,7 +9,14 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Models\Property;
 use Filament\Tables\Actions\CreateAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\TextInput;
 
 class UserResource extends Resource
 {
@@ -19,6 +26,18 @@ class UserResource extends Resource
     protected static ?string $navigationLabel = 'Users';
     protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
+
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->check() && auth()->user()->role === 'super_admin';
+    }
+
+
+    public static function canViewAny(): bool
+    {
+        return auth()->check() && auth()->user()->role === 'super_admin';
+    }
 
     // public static function form(Form $form): Form
     // {
@@ -95,16 +114,25 @@ class UserResource extends Resource
                         ->maxLength(255)
                         ->unique(ignoreRecord: true),
 
-                    Forms\Components\TextInput::make('password')
-                        ->password()
-                        ->maxLength(255)
-                        ->required()
-                        ->dehydrateStateUsing(fn($state) => filled($state) ? $state : null),
+                // Forms\Components\TextInput::make('password')
+                //     ->password()
+                //     ->maxLength(255)
+                //     ->required()
+                //     ->dehydrateStateUsing(fn($state) => filled($state) ? $state : null),
+
+                Forms\Components\TextInput::make('password')
+                    ->label('Password')
+                    ->password()
+                    ->revealable()
+                    ->helperText('Edit: Leave blank to keep current password.')
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->dehydrated(fn($state): bool => filled($state)) // only save if filled
+                    ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null),
 
                     Forms\Components\Select::make('role')
                         ->options([
                             'super_admin' => 'Super Admin',
-                            'owner' => 'Owner',
+                            // 'owner' => 'Owner',
                             'manager' => 'Manager',
                         ])
                         ->default('owner')
@@ -133,9 +161,9 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')->label('ID')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('full_name')->label('Full Name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('email')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('user_id')->label('ID')->sortable(),
+                Tables\Columns\TextColumn::make('full_name')->label('Full Name')->sortable(),
+                Tables\Columns\TextColumn::make('email')->sortable(),
 
                 Tables\Columns\BadgeColumn::make('role')
                     ->colors([
@@ -147,8 +175,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('property.name')
                     ->label('Property')
                     ->formatStateUsing(fn($state, $record) => $record->property?->name ?? '-')
-                    ->sortable()
-                    ->searchable(),
+                    ->sortable(),
                 Tables\Columns\ImageColumn::make('profile_image_url')
                     ->label('Photo')
                     ->disk('public')
@@ -196,7 +223,6 @@ class UserResource extends Resource
                             Forms\Components\Select::make('property_id')
                                 ->label('Property')
                                 ->relationship('property', 'name')
-                                ->searchable()
                                 ->preload()
                                 ->nullable(),
 
@@ -219,7 +245,60 @@ class UserResource extends Resource
                         $record->update($data);
                     }),
             ])
+            ->filters([
+                // ✅ Search filter row (ដូច Maintenance)
+                Filter::make('q')
+                    ->form([
+                        TextInput::make('q')
+                            ->label('Search')
+                            ->placeholder('Search ID / name / email / property...')
+                            ->extraInputAttributes(['class' => 'w-full']),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['q'] ?? null;
 
+                        return $query->when($value, function (Builder $q) use ($value) {
+                            $q->where(function (Builder $qq) use ($value) {
+                                $qq->where('user_id', 'like', "%{$value}%")
+                                    ->orWhere('full_name', 'like', "%{$value}%")
+                                    ->orWhere('email', 'like', "%{$value}%");
+                            })
+                                ->orWhereHas('property', fn(Builder $p) => $p->where('name', 'like', "%{$value}%"));
+                        });
+                    }),
+
+                // ✅ Role filter
+                SelectFilter::make('role')
+                    ->label('Role')
+                    ->options([
+                        'super_admin' => 'Super Admin',
+                        // 'owner'       => 'Owner',
+                        'manager'     => 'Manager',
+                    ])
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('All'),
+
+                // ✅ Property filter
+                SelectFilter::make('property_id')
+                    ->label('Property')
+                    ->options(fn() => Property::query()
+                        ->orderBy('name')
+                        ->pluck('name', 'property_id')
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('All'),
+            ])
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersFormColumns(3)
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->label('Actions'),
+            ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);

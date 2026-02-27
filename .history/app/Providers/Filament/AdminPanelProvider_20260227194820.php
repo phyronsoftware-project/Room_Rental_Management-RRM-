@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode as EnumsThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -17,19 +18,31 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Support\Enums\ThemeMode;
+use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('RRM - System')
+            ->brandName('RentMaster')
+            // ->brandLogo(asset('img/me.jpeg'))
             ->login()
+            // ->viteTheme('resources/css/filament/admin/theme.css')
+            // ->defaultThemeMode(EnumsThemeMode::Light)
+            // ->theme(asset('css/filament/admin/theme.css'))
 
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label('Profile')
+                    ->url(fn(): string => EditProfile::getUrl()),
+            ])
+            ->profile()
             ->sidebarWidth('18rem')
             ->colors([
                 'primary' => Color::Amber,
@@ -38,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 \App\Filament\Pages\Dashboard::class,
+                \App\Filament\Pages\Profile::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

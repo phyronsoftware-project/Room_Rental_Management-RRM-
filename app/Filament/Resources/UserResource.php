@@ -132,7 +132,7 @@ class UserResource extends Resource
                     Forms\Components\Select::make('role')
                         ->options([
                             'super_admin' => 'Super Admin',
-                            'owner' => 'Owner',
+                            // 'owner' => 'Owner',
                             'manager' => 'Manager',
                         ])
                         ->default('owner')
