@@ -7,9 +7,10 @@ use App\Models\Payment;
 
 class PaymentsYearCompareChart extends ChartWidget
 {
-    protected static ?string $heading = 'Payments by Month (USD & KHR - This Year)';
+    protected static ?string $heading = 'Payments by Month (This Year vs Last Year)';
     protected static ?int $sort = 10;
 
+    // ✅ half width (2 columns on md+)
     protected int|string|array $columnSpan = [
         'default' => 1,
         'md' => 2,
@@ -17,63 +18,87 @@ class PaymentsYearCompareChart extends ChartWidget
 
     /**
      * Cambodia exchange rate (KHR per 1 USD).
-     * Change by config('app.khr_per_usd') or .env APP_KHR_PER_USD=4100
+     * You can change it by adding `khr_per_usd` to config/app.php or .env -> APP_KHR_PER_USD
      */
     protected function getKhrPerUsd(): float
     {
+        // supports either config('app.khr_per_usd') or env('APP_KHR_PER_USD')
         return (float) (config('app.khr_per_usd') ?? env('APP_KHR_PER_USD', 4100));
     }
 
     protected function getData(): array
     {
-        $year = now()->year;
-        $rate = $this->getKhrPerUsd();
+        $year     = now()->year;
+        $lastYear = $year - 1;
+        $rate     = $this->getKhrPerUsd();
 
-        // ✅ Real data: sum USD by month
+        // ✅ map: month => sum(amount) (assumes "amount" stored as USD)
         $thisYearMap = Payment::query()
             ->whereYear('payment_date', $year)
             ->selectRaw('MONTH(payment_date) as m, SUM(amount) as total')
             ->groupBy('m')
             ->pluck('total', 'm');
 
+        $lastYearMap = Payment::query()
+            ->whereYear('payment_date', $lastYear)
+            ->selectRaw('MONTH(payment_date) as m, SUM(amount) as total')
+            ->groupBy('m')
+            ->pluck('total', 'm');
+
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        $usdData = collect(range(1, 12))
+        $thisYearUsd = collect(range(1, 12))
             ->map(fn($m) => (float) ($thisYearMap[$m] ?? 0))
             ->all();
 
-        $khrData = collect($usdData)
-            ->map(fn($v) => (float) ($v * $rate))
+        $lastYearUsd = collect(range(1, 12))
+            ->map(fn($m) => (float) ($lastYearMap[$m] ?? 0))
             ->all();
+
+        // ✅ Convert to KHR (real data from USD amounts)
+        $thisYearKhr = collect($thisYearUsd)->map(fn($v) => (float) ($v * $rate))->all();
+        $lastYearKhr = collect($lastYearUsd)->map(fn($v) => (float) ($v * $rate))->all();
 
         return [
             'labels' => $months,
             'datasets' => [
-                // ✅ USD line (blue)
+                // USD (bars)
                 [
                     'label' => $year . ' (USD)',
-                    'data' => $usdData,
-                    'type' => 'line',
-                    'borderColor' => '#3B82F6',
-                    'backgroundColor' => 'transparent',
-                    'borderWidth' => 2,
-                    'tension' => 0.35,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 0,
+                    'data' => $thisYearUsd,
+                    'backgroundColor' => '#3B82F6', // blue
+                    'borderRadius' => 10,
+                    'yAxisID' => 'y',
+                ],
+                [
+                    'label' => $lastYear . ' (USD)',
+                    'data' => $lastYearUsd,
+                    'backgroundColor' => '#CBD5E1', // gray
+                    'borderRadius' => 10,
                     'yAxisID' => 'y',
                 ],
 
-                // ✅ KHR line (green)
+                // KHR (lines) — second axis on the right
                 [
-                    'label' => $year . ' (KHR)',
-                    'data' => $khrData,
                     'type' => 'line',
-                    'borderColor' => '#22C55E',
+                    'label' => $year . ' (KHR)',
+                    'data' => $thisYearKhr,
+                    'borderColor' => '#22C55E', // green
                     'backgroundColor' => 'transparent',
-                    'borderWidth' => 3,
-                    'tension' => 0.35,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 0,
+                    'borderWidth' => 2,
+                    'pointRadius' => 2,
+                    'tension' => 0.3,
+                    'yAxisID' => 'y1',
+                ],
+                [
+                    'type' => 'line',
+                    'label' => $lastYear . ' (KHR)',
+                    'data' => $lastYearKhr,
+                    'borderColor' => '#94A3B8', // slate
+                    'backgroundColor' => 'transparent',
+                    'borderWidth' => 2,
+                    'pointRadius' => 2,
+                    'tension' => 0.3,
                     'yAxisID' => 'y1',
                 ],
             ],
@@ -82,12 +107,13 @@ class PaymentsYearCompareChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'line';
+        return 'bar';
     }
 
     /**
-     * ✅ No JS callbacks (stable on Chart.js 3.3.47 + Filament)
-     * We show USD + KHR using two Y-axes.
+     * ✅ IMPORTANT:
+     * Do NOT use JS callback functions here (Filament v2 serializes to JSON and breaks Chart.js).
+     * We use two Y-axes to show both USD & KHR without custom JS callbacks.
      */
     protected function getOptions(): array
     {
@@ -108,20 +134,10 @@ class PaymentsYearCompareChart extends ChartWidget
                 'mode' => 'index',
                 'intersect' => false,
             ],
-            'elements' => [
-                'point' => [
-                    'radius' => 0,
-                    'hoverRadius' => 0,
-                ],
-                'line' => [
-                    'fill' => false,
-                ],
-            ],
             'scales' => [
                 // Left axis (USD)
                 'y' => [
                     'beginAtZero' => true,
-                    'position' => 'left',
                     'title' => [
                         'display' => true,
                         'text' => 'USD ($)',
@@ -136,7 +152,7 @@ class PaymentsYearCompareChart extends ChartWidget
                     ],
                     'title' => [
                         'display' => true,
-                        'text' => 'KHR (៛) — Rate 1$ ≈ ' . number_format($rate) . '៛',
+                        'text' => 'KHR (៛)  —  Rate 1$ ≈ ' . number_format($rate) . '៛',
                     ],
                 ],
                 'x' => [

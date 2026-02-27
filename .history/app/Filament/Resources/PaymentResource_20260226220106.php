@@ -15,10 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rule;
-use App\Filament\Exports\PaymentExporter;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
-
 
 class PaymentResource extends Resource
 {
@@ -232,11 +228,6 @@ class PaymentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->headerActions([
-            // ExportAction::make()
-            //     ->exporter(PaymentExporter::class)
-            //     ->formats([ExportFormat::Xlsx]),
-            // ])
             ->columns([
                 Tables\Columns\TextColumn::make('payment_id')
                     ->label('ID')
@@ -259,7 +250,7 @@ class PaymentResource extends Resource
                     ->formatStateUsing(fn($state, $record) => $record->tenant?->full_name ?? '-')
                     ->sortable()
                     ->searchable(),
-
+                    
 
                 Tables\Columns\TextColumn::make('water_fee')
                     ->label('Water')

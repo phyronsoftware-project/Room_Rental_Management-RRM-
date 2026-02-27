@@ -15,10 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rule;
-use App\Filament\Exports\PaymentExporter;
-use Filament\Tables\Actions\ExportAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
-
 
 class PaymentResource extends Resource
 {
@@ -53,7 +49,7 @@ class PaymentResource extends Resource
         // ✅ Tenant first (required). Selecting tenant auto-fills Property + Room + Amount
         $tenantSelect = Forms\Components\Select::make('tenant_id')
             ->label('Tenant')
-            ->options(fn() => Tenant::query()
+            ->options(fn () => Tenant::query()
                 ->orderBy('full_name')
                 ->pluck('full_name', 'tenant_id')
                 ->toArray())
@@ -110,7 +106,7 @@ class PaymentResource extends Resource
         // Property (auto-filled from tenant)
         $propertySelect = Forms\Components\Select::make('property_id')
             ->label('Property')
-            ->options(fn() => Property::query()
+            ->options(fn () => Property::query()
                 ->orderBy('name')
                 ->pluck('name', 'property_id')
                 ->toArray())
@@ -142,8 +138,8 @@ class PaymentResource extends Resource
             ->dehydrated(true)        // still save even if disabled
             // Backend validation: room must belong to selected property
             ->rules([
-                fn(Get $get) => Rule::exists('rooms', 'room_id')
-                    ->where(fn($q) => $q->where('property_id', $get('property_id'))),
+                fn (Get $get) => Rule::exists('rooms', 'room_id')
+                    ->where(fn ($q) => $q->where('property_id', $get('property_id'))),
             ])
             ->required();
 
@@ -232,11 +228,6 @@ class PaymentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->headerActions([
-            // ExportAction::make()
-            //     ->exporter(PaymentExporter::class)
-            //     ->formats([ExportFormat::Xlsx]),
-            // ])
             ->columns([
                 Tables\Columns\TextColumn::make('payment_id')
                     ->label('ID')
@@ -244,22 +235,21 @@ class PaymentResource extends Resource
 
                 Tables\Columns\TextColumn::make('property.name')
                     ->label('Property')
-                    ->formatStateUsing(fn($state, $record) => $record->property?->name ?? '-')
+                    ->formatStateUsing(fn ($state, $record) => $record->property?->name ?? '-')
                     ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('room.room_number')
                     ->label('Room')
-                    ->formatStateUsing(fn($state, $record) => $record->room?->room_number ?? '-')
+                    ->formatStateUsing(fn ($state, $record) => $record->room?->room_number ?? '-')
                     ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('tenant.full_name')
                     ->label('Tenant')
-                    ->formatStateUsing(fn($state, $record) => $record->tenant?->full_name ?? '-')
+                    ->formatStateUsing(fn ($state, $record) => $record->tenant?->full_name ?? '-')
                     ->sortable()
                     ->searchable(),
-
 
                 Tables\Columns\TextColumn::make('water_fee')
                     ->label('Water')
@@ -297,7 +287,7 @@ class PaymentResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->modalHeading('Edit Payment')
                         ->modalWidth('3xl')
-                        ->form(fn() => self::getFormSchema()),
+                        ->form(fn () => self::getFormSchema()),
 
                     Tables\Actions\DeleteAction::make(),
                 ])->label('Actions'),

@@ -232,11 +232,11 @@ class PaymentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->headerActions([
-            // ExportAction::make()
-            //     ->exporter(PaymentExporter::class)
-            //     ->formats([ExportFormat::Xlsx]),
-            // ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(PaymentExporter::class)
+                    ->formats([ExportFormat::Xlsx]), // ចង់បាន Excel តែប៉ុណ្ណោះ
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('payment_id')
                     ->label('ID')

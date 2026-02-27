@@ -7,7 +7,8 @@ use App\Models\Payment;
 
 class PaymentsYearCompareChart extends ChartWidget
 {
-    protected static ?string $heading = 'Payments by Month (USD & KHR - This Year)';
+    // Keep the same heading (you can change if you want)
+    protected static ?string $heading = 'Payments by Month (KHR - This Year)';
     protected static ?int $sort = 10;
 
     protected int|string|array $columnSpan = [
@@ -29,7 +30,7 @@ class PaymentsYearCompareChart extends ChartWidget
         $year = now()->year;
         $rate = $this->getKhrPerUsd();
 
-        // ✅ Real data: sum USD by month
+        // Sum USD by month (real data) then convert to KHR
         $thisYearMap = Payment::query()
             ->whereYear('payment_date', $year)
             ->selectRaw('MONTH(payment_date) as m, SUM(amount) as total')
@@ -38,33 +39,15 @@ class PaymentsYearCompareChart extends ChartWidget
 
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        $usdData = collect(range(1, 12))
-            ->map(fn($m) => (float) ($thisYearMap[$m] ?? 0))
-            ->all();
-
-        $khrData = collect($usdData)
-            ->map(fn($v) => (float) ($v * $rate))
+        $khrData = collect(range(1, 12))
+            ->map(fn($m) => (float) (($thisYearMap[$m] ?? 0) * $rate))
             ->all();
 
         return [
             'labels' => $months,
             'datasets' => [
-                // ✅ USD line (blue)
                 [
-                    'label' => $year . ' (USD)',
-                    'data' => $usdData,
-                    'type' => 'line',
-                    'borderColor' => '#3B82F6',
-                    'backgroundColor' => 'transparent',
-                    'borderWidth' => 2,
-                    'tension' => 0.35,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 0,
-                    'yAxisID' => 'y',
-                ],
-
-                // ✅ KHR line (green)
-                [
+                    // ✅ ONLY GREEN LINE
                     'label' => $year . ' (KHR)',
                     'data' => $khrData,
                     'type' => 'line',
@@ -72,9 +55,9 @@ class PaymentsYearCompareChart extends ChartWidget
                     'backgroundColor' => 'transparent',
                     'borderWidth' => 3,
                     'tension' => 0.35,
+                    // remove dots
                     'pointRadius' => 0,
                     'pointHoverRadius' => 0,
-                    'yAxisID' => 'y1',
                 ],
             ],
         ];
@@ -85,10 +68,6 @@ class PaymentsYearCompareChart extends ChartWidget
         return 'line';
     }
 
-    /**
-     * ✅ No JS callbacks (stable on Chart.js 3.3.47 + Filament)
-     * We show USD + KHR using two Y-axes.
-     */
     protected function getOptions(): array
     {
         $rate = $this->getKhrPerUsd();
@@ -113,27 +92,10 @@ class PaymentsYearCompareChart extends ChartWidget
                     'radius' => 0,
                     'hoverRadius' => 0,
                 ],
-                'line' => [
-                    'fill' => false,
-                ],
             ],
             'scales' => [
-                // Left axis (USD)
                 'y' => [
                     'beginAtZero' => true,
-                    'position' => 'left',
-                    'title' => [
-                        'display' => true,
-                        'text' => 'USD ($)',
-                    ],
-                ],
-                // Right axis (KHR)
-                'y1' => [
-                    'beginAtZero' => true,
-                    'position' => 'right',
-                    'grid' => [
-                        'drawOnChartArea' => false,
-                    ],
                     'title' => [
                         'display' => true,
                         'text' => 'KHR (៛) — Rate 1$ ≈ ' . number_format($rate) . '៛',

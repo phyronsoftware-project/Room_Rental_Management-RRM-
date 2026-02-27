@@ -36,14 +36,14 @@ class PaymentsYearCompareChart extends ChartWidget
             ->groupBy('m')
             ->pluck('total', 'm');
 
-        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
         $usdData = collect(range(1, 12))
-            ->map(fn($m) => (float) ($thisYearMap[$m] ?? 0))
+            ->map(fn ($m) => (float) ($thisYearMap[$m] ?? 0))
             ->all();
 
         $khrData = collect($usdData)
-            ->map(fn($v) => (float) ($v * $rate))
+            ->map(fn ($v) => (float) ($v * $rate))
             ->all();
 
         return [
