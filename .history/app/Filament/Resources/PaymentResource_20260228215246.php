@@ -16,14 +16,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rule;
+    use Filament\Forms\Components\Grid;
+
 use App\Filament\Exports\PaymentExporter;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Enums\FiltersLayout;
 
 
 class PaymentResource extends Resource
@@ -418,51 +418,6 @@ class PaymentResource extends Resource
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                Filter::make('payment_month')
-                    ->label('Month')
-                    ->form([
-                        Grid::make(2)->schema([
-                            Select::make('month')
-                                ->label('Month')
-                                ->options([
-                                    '01' => 'January',
-                                    '02' => 'February',
-                                    '03' => 'March',
-                                    '04' => 'April',
-                                    '05' => 'May',
-                                    '06' => 'June',
-                                    '07' => 'July',
-                                    '08' => 'August',
-                                    '09' => 'September',
-                                    '10' => 'October',
-                                    '11' => 'November',
-                                    '12' => 'December',
-                                ])
-                                ->default(now()->format('m'))
-                                ->required(),
-
-                            Select::make('year')
-                                ->label('Year')
-                                ->options(collect(range(now()->year - 5, now()->year + 1))
-                                    ->mapWithKeys(fn($y) => [(string) $y => (string) $y])
-                                    ->toArray())
-                                ->default((string) now()->year)
-                                ->required(),
-                        ]),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        $month = $data['month'] ?? null;
-                        $year  = $data['year'] ?? null;
-
-                        if (! $month || ! $year) return $query;
-
-                        return $query
-                            ->whereYear('payment_date', (int) $year)
-                            ->whereMonth('payment_date', (int) $month);
-                    }),
-            ])
-            ->filtersLayout(FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()

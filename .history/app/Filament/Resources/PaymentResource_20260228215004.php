@@ -16,14 +16,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rule;
+use Filament\Forms\Components\Grid;
+
 use App\Filament\Exports\PaymentExporter;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Grid;
-use Filament\Tables\Enums\FiltersLayout;
 
 
 class PaymentResource extends Resource
@@ -462,7 +462,7 @@ class PaymentResource extends Resource
                             ->whereMonth('payment_date', (int) $month);
                     }),
             ])
-            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()

@@ -16,13 +16,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rule;
+use Filament\Forms\Components\Grid;
+
 use App\Filament\Exports\PaymentExporter;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Grid;
 use Filament\Tables\Enums\FiltersLayout;
 
 
@@ -426,43 +427,67 @@ class PaymentResource extends Resource
                             Select::make('month')
                                 ->label('Month')
                                 ->options([
-                                    '01' => 'January',
-                                    '02' => 'February',
-                                    '03' => 'March',
-                                    '04' => 'April',
-                                    '05' => 'May',
-                                    '06' => 'June',
-                                    '07' => 'July',
-                                    '08' => 'August',
-                                    '09' => 'September',
-                                    '10' => 'October',
-                                    '11' => 'November',
-                                    '12' => 'December',
+                                    1 => 'January',
+                                    2 => 'February',
+                                    3 => 'March',
+                                    4 => 'April',
+                                    5 => 'May',
+                                    6 => 'June',
+                                    7 => 'July',
+                                    8 => 'August',
+                                    9 => 'September',
+                                    10 => 'October',
+                                    11 => 'November',
+                                    12 => 'December',
                                 ])
-                                ->default(now()->format('m'))
-                                ->required(),
+                                ->default((int) now()->format('m'))
+                                ->native(false),
 
                             Select::make('year')
                                 ->label('Year')
                                 ->options(collect(range(now()->year - 5, now()->year + 1))
-                                    ->mapWithKeys(fn($y) => [(string) $y => (string) $y])
+                                    ->mapWithKeys(fn($y) => [$y => (string) $y])
                                     ->toArray())
-                                ->default((string) now()->year)
-                                ->required(),
+                                ->default(now()->year)
+                                ->native(false),
                         ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $month = $data['month'] ?? null;
                         $year  = $data['year'] ?? null;
 
-                        if (! $month || ! $year) return $query;
-
                         return $query
-                            ->whereYear('payment_date', (int) $year)
-                            ->whereMonth('payment_date', (int) $month);
+                            ->when($year, fn($q) => $q->whereYear('payment_date', (int) $year))
+                            ->when($month, fn($q) => $q->whereMonth('payment_date', (int) $month));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $month = $data['month'] ?? null;
+                        $year  = $data['year'] ?? null;
+
+                        if (! $month && ! $year) return [];
+
+                        $monthName = $month ? [
+                            1 => 'Jan',
+                            2 => 'Feb',
+                            3 => 'Mar',
+                            4 => 'Apr',
+                            5 => 'May',
+                            6 => 'Jun',
+                            7 => 'Jul',
+                            8 => 'Aug',
+                            9 => 'Sep',
+                            10 => 'Oct',
+                            11 => 'Nov',
+                            12 => 'Dec'
+                        ][(int) $month] : null;
+
+                        $label = trim(($monthName ?? '') . ' ' . ($year ?? ''));
+
+                        return [$label ?: 'Month filter'];
                     }),
             ])
-            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible) // ✅ UI តូច + បិទ/បើកបាន
+            ->filtersFormColumns(2)
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make()
