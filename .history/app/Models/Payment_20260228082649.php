@@ -35,9 +35,6 @@ class Payment extends Model
         'amount' => 'decimal:2',
         'water_fee' => 'decimal:2',
         'electricity_fee' => 'decimal:2',
-        'water_m3' => 'decimal:2',
-        'electricity_kwh' => 'decimal:2',
-        'parking_fee' => 'decimal:2',
         'payment_date' => 'date',
     ];
 

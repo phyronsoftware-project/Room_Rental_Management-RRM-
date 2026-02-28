@@ -91,11 +91,22 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(RoomResource::getUrl('index')),
 
-            Stat::make('Moto / Car', "{$totalMotos} / {$totalCars}")
-                ->description('Total motorbikes and cars')
-                ->icon('heroicon-o-truck')
+            Stat::make('Moto / Car', '')   // value empty, we show numbers in description
+                ->description(
+                    "<div class='grid grid-cols-2 gap-3 text-center'>
+            <div>
+                <div class='text-xs text-gray-500'>Moto</div>
+                <div class='text-lg font-semibold'>{$totalMotos}</div>
+            </div>
+            <div>
+                <div class='text-xs text-gray-500'>Car</div>
+                <div class='text-lg font-semibold'>{$totalCars}</div>
+            </div>
+        </div>"
+                )
+                ->html() // ✅ allow HTML
+                ->icon('heroicon-o-truck') // ឬ icon ផ្សេង
                 ->color('primary')
-                ->chart([1, 2, 3, 4, 5, 6, $totalMotos, $totalCars])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
                 ])

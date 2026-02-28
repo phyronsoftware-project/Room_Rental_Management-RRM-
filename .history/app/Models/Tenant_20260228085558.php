@@ -23,6 +23,7 @@ class Tenant extends Model
         'password',
         'phone_number',
         'age',
+
         'start_date',
         'end_date',
         'status',
@@ -30,8 +31,6 @@ class Tenant extends Model
     ];
 
     protected $casts = [
-        'car_count' => 'integer',
-        'motorbike_count' => 'integer',
         'start_date' => 'date',
         'end_date'   => 'date',
         'age'        => 'integer',

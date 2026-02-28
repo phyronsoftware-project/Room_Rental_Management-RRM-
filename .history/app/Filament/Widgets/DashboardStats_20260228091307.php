@@ -35,14 +35,9 @@ class DashboardStats extends BaseWidget
             ])
             ->sum('amount');
 
-
-        $totalCars = (int) Tenant::query()
-            ->whereIn('room_id', Room::query()->whereIn('status', ['occupied', 'rented'])->pluck('room_id'))
-            ->sum('car_count');
-
-        $totalMotos = (int) Tenant::query()
-            ->whereIn('room_id', Room::query()->whereIn('status', ['occupied', 'rented'])->pluck('room_id'))
-            ->sum('motorbike_count');
+            
+        $totalCars = (int) Tenant::query()->sum('car_count');
+        $totalMotos = (int) Tenant::query()->sum('motorbike_count');
 
         // ✅ Total payments this month
         $paymentsThisMonth = (float) Payment::query()
@@ -91,15 +86,17 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(RoomResource::getUrl('index')),
 
-            Stat::make('Moto / Car', "{$totalMotos} / {$totalCars}")
-                ->description('Total motorbikes and cars')
-                ->icon('heroicon-o-truck')
+            // ✅ REAL value instead of hard-coded "20"
+            Stat::make('Total Houses', (string) $activeHouses)
+                ->description('Active houses in system')
+                ->descriptionIcon('heroicon-m-home')
+                ->icon('heroicon-o-home')
                 ->color('primary')
-                ->chart([1, 2, 3, 4, 5, 6, $totalMotos, $totalCars])
+                ->chart([12, 14, 13, 15, 18, 16, $activeHouses])
                 ->extraAttributes([
                     'class' => $cardBase . ' bg-blue-50 ring-blue-100',
                 ])
-                ->url(\App\Filament\Resources\TenantResource::getUrl('index')),
+                ->url(RoomResource::getUrl('index')),
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')

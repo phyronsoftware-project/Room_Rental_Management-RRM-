@@ -17,12 +17,11 @@ class Tenant extends Model
     protected $fillable = [
         'room_id',
         'full_name',
-        'car_count',
-        'motorbike_count',
         'email',
         'password',
         'phone_number',
         'age',
+        
         'start_date',
         'end_date',
         'status',
@@ -30,8 +29,6 @@ class Tenant extends Model
     ];
 
     protected $casts = [
-        'car_count' => 'integer',
-        'motorbike_count' => 'integer',
         'start_date' => 'date',
         'end_date'   => 'date',
         'age'        => 'integer',

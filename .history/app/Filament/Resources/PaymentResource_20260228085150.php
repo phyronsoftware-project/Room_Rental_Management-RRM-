@@ -124,19 +124,18 @@ class PaymentResource extends Resource
                 $set('property_id', $propertyId);
                 $set('room_id', $roomId);
 
-
-
-                // ✅ Auto-fill car/motorbike counts from tenant (read-only in payment form)
-                $cars = (int) (Tenant::query()->where('tenant_id', $state)->value('car_count') ?? 0);
-                $motos = (int) (Tenant::query()->where('tenant_id', $state)->value('motorbike_count') ?? 0);
-                $set('car_count', $cars);
-                $set('motorbike_count', $motos);
                 // Defaults (if empty)
                 if (blank($get('water_m3'))) {
                     $set('water_m3', 0);
                 }
                 if (blank($get('electricity_kwh'))) {
                     $set('electricity_kwh', 0);
+                }
+                if (blank($get('car_count'))) {
+                    $set('car_count', 0);
+                }
+                if (blank($get('motorbike_count'))) {
+                    $set('motorbike_count', 0);
                 }
 
                 self::recalcAmount($set, $get);
@@ -224,8 +223,6 @@ class PaymentResource extends Resource
             ->label('Cars')
             ->numeric()
             ->default(0)
-            ->disabled()          // auto-filled from Tenant
-            ->dehydrated(true)    // still save
             ->afterStateUpdated(function (Set $set, Get $get) {
                 self::recalcAmount($set, $get);
             });
@@ -240,8 +237,6 @@ class PaymentResource extends Resource
             ->label('Motorbikes')
             ->numeric()
             ->default(0)
-            ->disabled()          // auto-filled from Tenant
-            ->dehydrated(true)    // still save
             ->afterStateUpdated(function (Set $set, Get $get) {
                 self::recalcAmount($set, $get);
             });

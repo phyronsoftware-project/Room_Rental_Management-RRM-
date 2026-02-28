@@ -23,8 +23,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-protected static ?string $navigationGroup = 'System';
-protected static ?int $navigationSort = 0;
+    protected static ?string $navigationLabel = 'Settings';
+    protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
 
     public static function canAccess(): bool
@@ -43,6 +43,7 @@ protected static ?int $navigationSort = 0;
     {
         return static::canAccess();
     }
+
 
     public static function canEdit($record): bool
     {

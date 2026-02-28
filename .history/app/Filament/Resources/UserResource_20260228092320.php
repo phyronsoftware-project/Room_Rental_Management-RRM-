@@ -23,8 +23,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-protected static ?string $navigationGroup = 'System';
-protected static ?int $navigationSort = 0;
+    protected static ?string $navigationLabel = 'Settings';
+    protected static ?int $navigationSort = 1;
     protected static ?string $pluralModelLabel = 'Users';
 
     public static function canAccess(): bool
@@ -44,6 +44,14 @@ protected static ?int $navigationSort = 0;
         return static::canAccess();
     }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+    /**
+     * Check if the user can edit the given record.
+     *
+     * @param \App\Models\User $record
+     * @return bool
+     */
+/*******  2e0c737b-562f-4759-8d16-914b70a0ff15  *******/
     public static function canEdit($record): bool
     {
         return static::canAccess();

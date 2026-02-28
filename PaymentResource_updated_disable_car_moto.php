@@ -124,14 +124,14 @@ class PaymentResource extends Resource
                 $set('property_id', $propertyId);
                 $set('room_id', $roomId);
 
-
+                
 
                 // ✅ Auto-fill car/motorbike counts from tenant (read-only in payment form)
                 $cars = (int) (Tenant::query()->where('tenant_id', $state)->value('car_count') ?? 0);
                 $motos = (int) (Tenant::query()->where('tenant_id', $state)->value('motorbike_count') ?? 0);
                 $set('car_count', $cars);
                 $set('motorbike_count', $motos);
-                // Defaults (if empty)
+// Defaults (if empty)
                 if (blank($get('water_m3'))) {
                     $set('water_m3', 0);
                 }

@@ -91,15 +91,16 @@ class DashboardStats extends BaseWidget
                 ])
                 ->url(RoomResource::getUrl('index')),
 
-            Stat::make('Moto / Car', "{$totalMotos} / {$totalCars}")
-                ->description('Total motorbikes and cars')
-                ->icon('heroicon-o-truck')
-                ->color('primary')
-                ->chart([1, 2, 3, 4, 5, 6, $totalMotos, $totalCars])
+            Stat::make('Total Cars', (string) $totalCars)
+                ->description('Currently renting')
+                ->descriptionIcon('heroicon-m-car')
+                ->icon('heroicon-o-car')
+                ->color('warning')
+                ->chart([8, 9, 10, 11, 12, 13, 14, $totalCars])
                 ->extraAttributes([
-                    'class' => $cardBase . ' bg-blue-50 ring-blue-100',
+                    'class' => $cardBase . ' bg-amber-50 ring-amber-100',
                 ])
-                ->url(\App\Filament\Resources\TenantResource::getUrl('index')),
+                ->url(RoomResource::getUrl('index')),
 
             Stat::make('Total Tenants', (string) $totalTenants)
                 ->description('Currently renting')

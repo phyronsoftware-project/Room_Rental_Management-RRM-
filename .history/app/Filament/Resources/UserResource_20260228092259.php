@@ -23,14 +23,10 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-protected static ?string $navigationGroup = 'System';
-protected static ?int $navigationSort = 0;
+    protected static ?string $navigationLabel = 'Settings';
+    protected static ?string $modelLabel = 'User';
     protected static ?string $pluralModelLabel = 'Users';
 
-    public static function canAccess(): bool
-    {
-        return auth()->check() && auth()->user()->role === 'super_admin';
-    }
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -38,6 +34,10 @@ protected static ?int $navigationSort = 0;
     }
 
 
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->role === 'super_admin';
+    }
 
     public static function canCreate(): bool
     {

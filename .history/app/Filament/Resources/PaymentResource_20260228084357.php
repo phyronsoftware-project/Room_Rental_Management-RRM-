@@ -7,7 +7,6 @@ use App\Models\Payment;
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\Tenant;
-use App\Models\BillingSetting;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -36,40 +35,14 @@ class PaymentResource extends Resource
         $roomId = $get('room_id');
 
         $rent = 0;
-        $propertyId = null;
-
         if (! blank($roomId)) {
             $rent = (float) (Room::query()->where('room_id', $roomId)->value('price') ?? 0);
-            $propertyId = Room::query()->where('room_id', $roomId)->value('property_id');
         }
 
-        // Rates: property-specific first, fallback to global (property_id = null)
-        $setting = BillingSetting::query()
-            ->where('property_id', $propertyId)
-            ->first()
-            ?? BillingSetting::query()->whereNull('property_id')->first();
+        $water = (float) ($get('water_fee') ?? 0);
+        $electricity = (float) ($get('electricity_fee') ?? 0);
 
-        $waterRate = (float) ($setting?->water_unit_price ?? 0);
-        $electricityRate = (float) ($setting?->electricity_unit_price ?? 0);
-        $carRate = (float) ($setting?->car_parking_price ?? 0);
-        $motorbikeRate = (float) ($setting?->motorbike_parking_price ?? 0);
-
-        // Usage / counts
-        $waterM3 = (float) ($get('water_m3') ?? 0);
-        $electricityKwh = (float) ($get('electricity_kwh') ?? 0);
-        $carCount = (int) ($get('car_count') ?? 0);
-        $motorbikeCount = (int) ($get('motorbike_count') ?? 0);
-
-        // Calculated fees
-        $waterFee = $waterM3 * $waterRate;
-        $electricityFee = $electricityKwh * $electricityRate;
-        $parkingFee = ($carCount * $carRate) + ($motorbikeCount * $motorbikeRate);
-
-        $set('water_fee', $waterFee);
-        $set('electricity_fee', $electricityFee);
-        $set('parking_fee', $parkingFee);
-
-        $set('amount', $rent + $waterFee + $electricityFee + $parkingFee);
+        $set('amount', $rent + $water + $electricity);
     }
 
     /**
@@ -90,16 +63,8 @@ class PaymentResource extends Resource
                 if (blank($state)) {
                     $set('property_id', null);
                     $set('room_id', null);
-
-                    $set('water_m3', 0);
-                    $set('electricity_kwh', 0);
-                    $set('car_count', 0);
-                    $set('motorbike_count', 0);
-
                     $set('water_fee', 0);
                     $set('electricity_fee', 0);
-                    $set('parking_fee', 0);
-
                     $set('amount', null);
                     return;
                 }
@@ -124,19 +89,12 @@ class PaymentResource extends Resource
                 $set('property_id', $propertyId);
                 $set('room_id', $roomId);
 
-
-
-                // ✅ Auto-fill car/motorbike counts from tenant (read-only in payment form)
-                $cars = (int) (Tenant::query()->where('tenant_id', $state)->value('car_count') ?? 0);
-                $motos = (int) (Tenant::query()->where('tenant_id', $state)->value('motorbike_count') ?? 0);
-                $set('car_count', $cars);
-                $set('motorbike_count', $motos);
                 // Defaults (if empty)
-                if (blank($get('water_m3'))) {
-                    $set('water_m3', 0);
+                if (blank($get('water_fee'))) {
+                    $set('water_fee', 0);
                 }
-                if (blank($get('electricity_kwh'))) {
-                    $set('electricity_kwh', 0);
+                if (blank($get('electricity_fee'))) {
+                    $set('electricity_fee', 0);
                 }
 
                 self::recalcAmount($set, $get);
@@ -190,90 +148,36 @@ class PaymentResource extends Resource
             ->required();
 
         // Water fee
-        $waterM3Input = Forms\Components\TextInput::make('water_m3')
-            ->label('Water (m³)')
-            ->numeric()
-            ->default(0)
-            ->suffix('m³')
-            ->afterStateUpdated(function (Set $set, Get $get) {
-                self::recalcAmount($set, $get);
-            });
-
-        if (method_exists($waterM3Input, 'live')) {
-            $waterM3Input->live();
-        } elseif (method_exists($waterM3Input, 'reactive')) {
-            $waterM3Input->reactive();
-        }
-
-        $electricityKwhInput = Forms\Components\TextInput::make('electricity_kwh')
-            ->label('Electricity (kWh)')
-            ->numeric()
-            ->default(0)
-            ->suffix('kWh')
-            ->afterStateUpdated(function (Set $set, Get $get) {
-                self::recalcAmount($set, $get);
-            });
-
-        if (method_exists($electricityKwhInput, 'live')) {
-            $electricityKwhInput->live();
-        } elseif (method_exists($electricityKwhInput, 'reactive')) {
-            $electricityKwhInput->reactive();
-        }
-
-        $carCountInput = Forms\Components\TextInput::make('car_count')
-            ->label('Cars')
-            ->numeric()
-            ->default(0)
-            ->disabled()          // auto-filled from Tenant
-            ->dehydrated(true)    // still save
-            ->afterStateUpdated(function (Set $set, Get $get) {
-                self::recalcAmount($set, $get);
-            });
-
-        if (method_exists($carCountInput, 'live')) {
-            $carCountInput->live();
-        } elseif (method_exists($carCountInput, 'reactive')) {
-            $carCountInput->reactive();
-        }
-
-        $motorbikeCountInput = Forms\Components\TextInput::make('motorbike_count')
-            ->label('Motorbikes')
-            ->numeric()
-            ->default(0)
-            ->disabled()          // auto-filled from Tenant
-            ->dehydrated(true)    // still save
-            ->afterStateUpdated(function (Set $set, Get $get) {
-                self::recalcAmount($set, $get);
-            });
-
-        if (method_exists($motorbikeCountInput, 'live')) {
-            $motorbikeCountInput->live();
-        } elseif (method_exists($motorbikeCountInput, 'reactive')) {
-            $motorbikeCountInput->reactive();
-        }
-
-        // Calculated fees (read-only)
-        $waterFeeField = Forms\Components\TextInput::make('water_fee')
-            ->label('Water Fee')
+        $waterInput = Forms\Components\TextInput::make('water_fee')
+            ->label('Water / month')
             ->numeric()
             ->prefix('$')
-            ->disabled()
-            ->dehydrated(true);
+            ->default(0)
+            ->afterStateUpdated(function (Set $set, Get $get) {
+                self::recalcAmount($set, $get);
+            });
 
-        $electricityFeeField = Forms\Components\TextInput::make('electricity_fee')
-            ->label('Electricity Fee')
+        if (method_exists($waterInput, 'live')) {
+            $waterInput->live();
+        } elseif (method_exists($waterInput, 'reactive')) {
+            $waterInput->reactive();
+        }
+
+        // Electricity fee
+        $electricityInput = Forms\Components\TextInput::make('electricity_fee')
+            ->label('Electricity / month')
             ->numeric()
             ->prefix('$')
-            ->disabled()
-            ->dehydrated(true);
+            ->default(0)
+            ->afterStateUpdated(function (Set $set, Get $get) {
+                self::recalcAmount($set, $get);
+            });
 
-        $parkingFeeField = Forms\Components\TextInput::make('parking_fee')
-            ->label('Parking Fee')
-            ->numeric()
-            ->prefix('$')
-            ->disabled()
-            ->dehydrated(true);
-
+        if (method_exists($electricityInput, 'live')) {
+            $electricityInput->live();
+        } elseif (method_exists($electricityInput, 'reactive')) {
+            $electricityInput->reactive();
+        }
 
         return [
             Forms\Components\Grid::make(2)
@@ -284,14 +188,8 @@ class PaymentResource extends Resource
                     $propertySelect,
                     $roomSelect,
 
-                    $waterM3Input,
-                    $electricityKwhInput,
-                    $carCountInput,
-                    $motorbikeCountInput,
-
-                    $waterFeeField,
-                    $electricityFeeField,
-                    $parkingFeeField,
+                    $waterInput,
+                    $electricityInput,
 
                     Forms\Components\TextInput::make('amount')
                         ->label('Total Amount')
@@ -363,36 +261,13 @@ class PaymentResource extends Resource
                     ->searchable(),
 
 
-                Tables\Columns\TextColumn::make('water_m3')
-                    ->label('Water (m³)')
-                    ->numeric(decimalPlaces: 2)
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('electricity_kwh')
-                    ->label('Electricity (kWh)')
-                    ->numeric(decimalPlaces: 2)
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('car_count')
-                    ->label('Cars')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('motorbike_count')
-                    ->label('Motorbikes')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 Tables\Columns\TextColumn::make('water_fee')
-                    ->label('Water Fee')
+                    ->label('Water')
                     ->money('USD')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('electricity_fee')
-                    ->label('Electricity Fee')
-                    ->money('USD')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('parking_fee')
-                    ->label('Parking Fee')
+                    ->label('Electricity')
                     ->money('USD')
                     ->toggleable(isToggledHiddenByDefault: true),
 

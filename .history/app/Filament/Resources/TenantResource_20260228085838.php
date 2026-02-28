@@ -137,8 +137,7 @@ class TenantResource extends Resource
                         'danger'  => 'Evicted',
                     ])
                     ->sortable(),
-                Tables\Columns\TextColumn::make('car_count')->label('Cars')->sortable(),
-                Tables\Columns\TextColumn::make('motorbike_count')->label('Motorbikes')->sortable(),
+                Table 
                 Tables\Columns\TextColumn::make('start_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('end_date')->date()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
