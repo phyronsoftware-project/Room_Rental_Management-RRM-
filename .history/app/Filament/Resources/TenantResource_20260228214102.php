@@ -84,8 +84,6 @@ class TenantResource extends Resource
                     ->nullable(),
                 // motorbike_count
                 Forms\Components\TextInput::make('motorbike_count')
-                    ->numeric()
-                    ->nullable(),
                 Forms\Components\DatePicker::make('start_date')
                     ->label('Start Date')
                     ->default(now())

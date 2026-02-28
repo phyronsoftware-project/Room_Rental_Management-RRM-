@@ -80,12 +80,7 @@ class TenantResource extends Resource
                 //     ->required(),
                 // car_count
                 Forms\Components\TextInput::make('car_count')
-                    ->numeric()
-                    ->nullable(),
                 // motorbike_count
-                Forms\Components\TextInput::make('motorbike_count')
-                    ->numeric()
-                    ->nullable(),
                 Forms\Components\DatePicker::make('start_date')
                     ->label('Start Date')
                     ->default(now())

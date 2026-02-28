@@ -78,14 +78,8 @@ class TenantResource extends Resource
 
                 // Forms\Components\DatePicker::make('Move-in Date')
                 //     ->required(),
-                // car_count
-                Forms\Components\TextInput::make('car_count')
-                    ->numeric()
-                    ->nullable(),
-                // motorbike_count
-                Forms\Components\TextInput::make('motorbike_count')
-                    ->numeric()
-                    ->nullable(),
+                car_count
+                motorbike_count
                 Forms\Components\DatePicker::make('start_date')
                     ->label('Start Date')
                     ->default(now())
