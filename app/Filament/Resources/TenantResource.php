@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,13 +31,23 @@ class TenantResource extends Resource
             Forms\Components\Grid::make(2)->schema([
                 Forms\Components\Select::make('room_id')
                     ->label('Room')
-                    ->options(fn() => Room::query()
-                        ->orderBy('room_number')
-                        ->pluck('room_number', 'room_id')
-                        ->toArray())
+                    ->options(function (Get $get) {
+                        $currentRoomId = $get('room_id');
+
+                        return Room::query()
+                            ->when($currentRoomId, fn($q) => $q->where(function ($qq) use ($currentRoomId) {
+                                $qq->whereIn('status', ['Available', 'Maintenance'])
+                                    ->orWhere('room_id', $currentRoomId); // ✅ keep current room visible on edit
+                            }))
+                            ->when(! $currentRoomId, fn($q) => $q->whereIn('status', ['Available', 'Maintenance']))
+                            ->orderBy('room_number')
+                            ->pluck('room_number', 'room_id')
+                            ->toArray();
+                    })
                     ->searchable()
                     ->preload()
-                    ->nullable(),
+                    ->required(),
+
 
                 Forms\Components\TextInput::make('full_name')
                     ->required()
@@ -55,17 +66,6 @@ class TenantResource extends Resource
                 Forms\Components\TextInput::make('age')
                     ->numeric()
                     ->nullable(),
-                Forms\Components\TextInput::make('car_count')
-                    ->label('Cars')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0),
-
-                Forms\Components\TextInput::make('motorbike_count')
-                    ->label('Motorbikes')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0),
 
                 Forms\Components\Select::make('status')
                     ->options([
@@ -76,7 +76,11 @@ class TenantResource extends Resource
                     ->default('Active')
                     ->required(),
 
-                Forms\Components\DatePicker::make('Move-in Date')
+                // Forms\Components\DatePicker::make('Move-in Date')
+                //     ->required(),
+                Forms\Components\DatePicker::make('start_date')
+                    ->label('Start Date')
+                    ->default(now())
                     ->required(),
 
                 Forms\Components\DatePicker::make('end_date')
@@ -137,11 +141,26 @@ class TenantResource extends Resource
                         'danger'  => 'Evicted',
                     ])
                     ->sortable(),
-                Tables\Columns\TextColumn::make('car_count')->label('Cars')->sortable(),
-                Tables\Columns\TextColumn::make('motorbike_count')->label('Motorbikes')->sortable(),
+
                 Tables\Columns\TextColumn::make('start_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('end_date')->date()->sortable()->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('create')
+                    ->label('Create Tenant')
+                    ->icon('heroicon-o-plus')
+                    ->modalHeading('Create Tenant')
+                    ->modalWidth('3xl')
+                    ->form(fn() => self::getFormSchema('create'))
+                    ->action(function (array $data) {
+                        $tenant = Tenant::create($data);
+
+                        // ✅ set selected room to Occupied
+                        if (! empty($tenant->room_id)) {
+                            Room::query()->where('room_id', $tenant->room_id)->update(['status' => 'Occupied']);
+                        }
+                    }),
             ])
             ->actions([
                 Tables\Actions\Action::make('edit')
@@ -222,8 +241,54 @@ class TenantResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+
+                    // ✅ Edit in modal + auto update room status
+                    Tables\Actions\Action::make('edit')
+                        ->label('Edit')
+                        ->icon('heroicon-o-pencil-square')
+                        ->fillForm(fn(Tenant $record) => $record->toArray())
+                        ->form(fn() => self::getFormSchema('edit'))
+                        ->modalHeading('Edit Tenant')
+                        ->modalWidth('3xl')
+                        ->action(function (array $data, Tenant $record) {
+                            $oldRoomId = $record->room_id;
+
+                            $record->update($data);
+
+                            // ✅ set new room to Occupied
+                            if (! empty($record->room_id)) {
+                                Room::query()->where('room_id', $record->room_id)->update(['status' => 'Occupied']);
+                            }
+
+                            // ✅ if old room has no tenants -> set back to Available (only if it was Occupied)
+                            if (! empty($oldRoomId) && $oldRoomId != $record->room_id) {
+                                $stillHasTenants = Tenant::query()->where('room_id', $oldRoomId)->exists();
+
+                                if (! $stillHasTenants) {
+                                    Room::query()
+                                        ->where('room_id', $oldRoomId)
+                                        ->where('status', 'Occupied')
+                                        ->update(['status' => 'Available']);
+                                }
+                            }
+                        }),
+
+                    // ✅ Delete + free room if empty
+                    Tables\Actions\DeleteAction::make()
+                        ->before(function (Tenant $record) {
+                            // store old room_id in session for after
+                            session(['__tenant_delete_room_id' => $record->room_id]);
+                        })
+                        ->after(function () {
+                            $oldRoomId = session()->pull('__tenant_delete_room_id');
+
+                            if (! empty($oldRoomId) && ! Tenant::query()->where('room_id', $oldRoomId)->exists()) {
+                                Room::query()
+                                    ->where('room_id', $oldRoomId)
+                                    ->where('status', 'Occupied')
+                                    ->update(['status' => 'Available']);
+                            }
+                        }),
                 ])->label('Actions'),
             ])
             ->bulkActions([

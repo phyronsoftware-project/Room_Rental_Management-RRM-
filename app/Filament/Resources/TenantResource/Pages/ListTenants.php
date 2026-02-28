@@ -22,18 +22,18 @@ class ListTenants extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
-                ->label('Create Tenant')
-                ->modalHeading('Create Tenant')
-                ->modalWidth('3xl')
-                ->form(TenantResource::getFormSchema('create'))
-                ->mutateFormDataUsing(function (array $data): array {
-                    if (blank($data['password'] ?? null)) {
-                        unset($data['password']);
-                    }
-                    return $data;
-                })
-                ->successNotificationTitle('Created successfully ✅'),
+            // Actions\CreateAction::make()
+            //     ->label('Create Tenant')
+            //     ->modalHeading('Create Tenant')
+            //     ->modalWidth('3xl')
+            //     ->form(TenantResource::getFormSchema('create'))
+            //     ->mutateFormDataUsing(function (array $data): array {
+            //         if (blank($data['password'] ?? null)) {
+            //             unset($data['password']);
+            //         }
+            //         return $data;
+            //     })
+            //     ->successNotificationTitle('Created successfully ✅'),
         ];
     }
 
